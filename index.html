@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>Don't Tread on a Bomb!</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script type="text/javascript">
+
+			let gameState = "Stop"; 
+			let startButton;
+			let heightInput;
+			let widthInput;
+			let bombsInput;		                              
+			let gameArea;
+			
+			let bombIcon = `<svg xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 200.000000 200.000000" preserveAspectRatio="xMidYMid meet">
+							<g transform="translate(0.000000,200.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+							<path d="M962 1984 c-21 -14 -22 -22 -22 -160 0 -107 -3 -146 -12 -148 -7 -2 -38 -8 -68 -14 -82 -15 -164 -49 -235 -96 l-63 -43 -34 32 c-47 47 -72 52 -103 21 -34 -34 -32 -50 14 -98 l38 -42 -43 -65 c-49 -72 -81 -149 -96 -231 -6 -30 -12 -61 -14 -67 -2 -10 -40 -13 -144 -13 -127 0 -142 -2 -160 -20 -24 -24 -25 -49 -6 -76 13 -17 31 -20 162 -24 l148 -5 12 -65 c15 -85 54 -177 102 -249 l40 -57 -39 -42 c-46 -48 -48 -64 -14 -97 33 -34 49 -32 97 14 l42 39 59 -41 c72 -49 187 -94 261 -103 l56 -7 0 -143 c0 -131 2 -146 20 -164 11 -11 29 -20 40 -20 11 0 29 9 40 20 18 18 20 33 20 164 l0 143 56 7 c75 9 185 53 259 103 l61 41 41 -39 c49 -46 65 -48 98 -14 34 33 32 49 -14 97 l-39 42 40 57 c48 72 87 164 102 249 l12 65 148 5 c131 4 149 7 162 24 18 25 18 47 0 72 -13 17 -31 20 -162 24 l-148 5 -12 65 c-15 84 -53 176 -102 249 l-39 58 39 41 c43 46 47 73 18 102 -29 29 -56 25 -102 -18 l-41 -38 -63 42 c-81 55 -146 79 -286 109 l-28 5 0 140 c0 127 -2 142 -20 160 -24 24 -48 25 -78 4z m-106 -650 c94 -45 111 -178 31 -238 -64 -48 -138 -43 -192 14 -40 42 -47 121 -13 170 25 38 79 70 116 70 13 0 39 -7 58 -16z"/>
+							</g>
+							</svg>`;
+							
+			let flagIcon = `<svg xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 512.000000 512.000000" preserveAspectRatio="xMidYMid meet">
+						<g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)" fill="#0000AA" stroke="none">
+						<path d="M684 4788 c-12 -5 -27 -21 -33 -34 -16 -35 -16 -4353 0 -4387 17 -37 50 -47 149 -47 99 0 132 10 149 47 16 34 16 4352 0 4386 -6 14 -22 30 -36 36 -30 14 -200 13 -229 -1z"/>
+						<path d="M1540 4713 c-75 -9 -163 -34 -212 -59 -66 -33 -147 -115 -178 -179 l-25 -50 -3 -1022 -2 -1023 27 -7 c48 -13 145 -6 238 16 50 12 136 27 192 34 245 27 534 -46 959 -241 150 -69 232 -96 352 -117 495 -87 1046 228 1433 819 80 122 115 203 144 341 8 39 15 84 15 101 l0 31 -107 -32 c-137 -42 -297 -60 -457 -52 -277 13 -515 116 -704 304 -104 103 -173 198 -276 376 -111 195 -182 292 -291 401 -173 173 -364 279 -615 342 -64 16 -409 28 -490 17z"/>
+						</g>
+						</svg>`;			
+						
+			let showAll = () => {
+				
+			}
+
+			let finishGame = async () => {
+				alert("bom!");
+			};
+			
+			let initializeNewGame = (height,width,bombs) => {
+			
+				gameArea.innerHTML = "";
+				gameArea.style.width = `${width*22}px`;
+				gameArea.style.setProperty('margin-left', `calc($100vw - ${width*22})`);		
+		
+				for(let x = 0;x<width;x++){
+					for(let y = 0;y<height;y++){
+						let div = document.createElement("DIV");
+						div.style.height = "20px";
+						div.style.width = "20px";
+						div.style.borderStyle = "solid";
+						div.style.borderWidth = "1px";						
+						div.style.float = "left";
+						div.style.cursor = "pointer";
+						div.style.backgroundColor = "gray";						
+						div.addEventListener("click",fieldClicked);
+						div.addEventListener("contextmenu",contextMenuShowing);
+						div.dataset.surroundedBy = 0;
+						gameArea.appendChild(div);
+					}				
+				}
+				
+				while(bombs > 0){ 
+					let index = Math.floor(Math.random() * (height * width));
+					let currentField = gameArea.children[index];
+					let row = Math.floor(index / width);
+					let col = index % width;
+					
+					console.log(`Index : ${index}`);
+					if(currentField.dataset.hasBomb == "true"){
+						continue;
+					}
+					currentField.dataset.hasBomb = true;
+					
+					for(let y = -1;y <= 1;y++) {
+						for(let x = -1;x <= 1;x++) {
+							let neighbourIndex = index + (y * width) + x;
+							let neighbourRow = Math.floor(neighbourIndex / width); 
+							let neighbourCol = neighbourIndex % width;
+														
+							if(neighbourIndex < 0 || neighbourIndex > (height * width) -1 || neighbourIndex == index || neighbourCol < col - 1 || neighbourCol > col + 1){
+								console.log(`Column : ${col} , Row : ${row} , Index : ${index} , Neighbour Index : ${neighbourIndex}`);
+								continue;
+							}
+							
+							let neighbour = gameArea.children[neighbourIndex];
+							neighbour.dataset.surroundedBy = parseInt(neighbour.dataset.surroundedBy) + 1;
+							console.log(`Column : ${col} , Row : ${row} , Index : ${index} , Neighbour Index : ${neighbourIndex} , Surrounded By : ${neighbour.dataset.surroundedBy}`);
+
+						}
+					} 
+					bombs--;
+				}
+			}
+			
+			let showFieldContent = index => {
+				let height = parseInt(heightInput.value);
+				let width = parseInt(widthInput.value);			
+				var field = gameArea.children[index];
+			
+				if(field.dataset.shown == "true") {
+					return;
+				}			
+			
+                if (field.dataset.flagged == "true") {
+					return;
+				}
+
+				field.style.backgroundColor = "#FFF";
+                field.dataset.shown = "true";
+				
+				if(parseInt(field.dataset.surroundedBy) > 0){
+					field.innerHTML = `<center style="color:#F00;"><b>${field.dataset.surroundedBy}</b><center>`;
+					return;
+				} 			
+				
+				let col = index % width; 
+				for(let y = -1;y <= 1;y++) {
+					for(let x = -1;x <= 1;x++) {
+						let neighbourIndex = index + (y * width) + x;
+						let neighbourRow = Math.floor(neighbourIndex / width); 
+						let neighbourCol = neighbourIndex % width;
+							
+						if(neighbourIndex < 0 || neighbourIndex > (height * width) -1 || neighbourIndex == index || neighbourCol < col - 1 || neighbourCol > col + 1){
+							continue;
+						} 
+						showFieldContent(neighbourIndex);
+					}
+				}
+			};
+			
+			let initializeApp = () => {
+				startButton = document.querySelector("#start");
+				heightInput = document.querySelector("#height");
+				widthInput = document.querySelector("#width");
+				minesInput = document.querySelector("#mines");
+				gameArea = document.querySelector("#gameArea");
+				startButton.addEventListener("click", startButtonClickHandler);
+			};
+			
+			let fieldClicked = e => {
+				let index = [...gameArea.children].indexOf(e.target);
+
+				showFieldContent(index);
+				
+				if(e.target.dataset.hasBomb == "true"){
+					e.target.style.backgroundColor = "#FFF";
+					e.target.innerHTML = bombIcon;
+					finishGame();
+					return;
+				}
+			};
+			
+			let contextMenuShowing = e => {
+				e.preventDefault();		
+				if (e.target.dataset.shown == "true"){
+					return;
+				} if (e.target.dataset.flagged == "true") {
+					e.target.innerHTML = "";
+					e.target.style.backgroundColor = "gray";				
+					e.target.dataset.flagged = "false";
+					return;
+				} 
+
+				e.target.innerHTML = flagIcon;
+				e.target.dataset.flagged = true;
+				e.target.firstChild.style.pointerEvents = "none";
+			};	
+			
+			let startButtonClickHandler = e => {
+				let height = parseInt(heightInput.value);
+				let width = parseInt(widthInput.value);
+				let mines = parseInt(minesInput.value);
+				initializeNewGame(height,width,mines);
+			};
+			
+			function load(e){
+				initializeApp();
+			}
+			
+		</script>
+
+	</head>
+	<body onload="load()" style="width:100%;">
+		<label for=height>Size : </label>  
+		<input type=number min=5 max=100 value=50 id=height />
+		<label for=width>X</label>
+		<input type=number min=5 max=100 value=50 id=width /><br/>
+		
+		<label for=mines>Bomb Count : </label>  		
+		<input type=number id=mines value=350 />
+		
+		<button id=start>New Game</button>
+		<div id=gameArea style="margin-top:10px;"></div>
+	</body>
+</html>
