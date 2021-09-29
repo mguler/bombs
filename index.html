@@ -4,6 +4,8 @@
 		<title>Don't Tread on a Bomb!</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<script type="text/javascript">
+		
+			/* (C) 2021 Murat Güler , https://github.com/mguler/bombs*/
 
 			let gameState = "Stop"; 
 			let startButton;
@@ -102,8 +104,14 @@
 					return;
 				}
 
-				field.style.backgroundColor = "#FFF";
+				field.style.backgroundColor = "#FFF";				
                 field.dataset.shown = "true";
+				
+				if(field.dataset.hasBomb == "true"){
+					field.innerHTML = bombIcon;
+					finishGame();
+					return;
+				}
 				
 				if(parseInt(field.dataset.surroundedBy) > 0){
 					let bombs = parseInt(field.dataset.surroundedBy);
@@ -138,15 +146,7 @@
 			
 			let fieldClicked = e => {
 				let index = [...gameArea.children].indexOf(e.target);
-
-				showFieldContent(index);
-				
-				if(e.target.dataset.hasBomb == "true"){
-					e.target.style.backgroundColor = "#FFF";
-					e.target.innerHTML = bombIcon;
-					finishGame();
-					return;
-				}
+				showFieldContent(index);				
 			};
 			
 			let contextMenuShowing = e => {
