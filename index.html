@@ -3,9 +3,14 @@
 	<head>
 		<title>Don't Tread on a Bomb!</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<style>
+			#gameArea {
+				left:calc(100vw - width)
+			}
+		</style>
 		<script type="text/javascript">
 		
-			/* (C) 2021 Murat Güler , https://github.com/mguler/bombs*/
+			/* (C) 2021 Murat Güler , https://github.com/mguler/bombs */
 
 			let gameState = "Stop"; 
 			let startButton;
@@ -33,13 +38,12 @@
 
 			let finishGame = async () => {
 				alert("bom!");
+				bombsInput.disabled = false; 
 			};
 			
 			let initializeNewGame = (height,width,bombs) => {
-			
 				gameArea.innerHTML = "";
 				gameArea.style.width = `${width*22}px`;
-				gameArea.style.setProperty('margin-left', `calc($100vw - ${width*22})`);		
 		
 				for(let x = 0;x<width;x++){
 					for(let y = 0;y<height;y++){
@@ -139,7 +143,7 @@
 				startButton = document.querySelector("#start");
 				heightInput = document.querySelector("#height");
 				widthInput = document.querySelector("#width");
-				minesInput = document.querySelector("#mines");
+				bombsInput = document.querySelector("#mines");
 				gameArea = document.querySelector("#gameArea");
 				startButton.addEventListener("click", startButtonClickHandler);
 			};
@@ -157,19 +161,22 @@
 					e.target.innerHTML = "";
 					e.target.style.backgroundColor = "gray";				
 					e.target.dataset.flagged = "false";
+					bombsInput.value = parseInt(bombsInput.value) + 1;
 					return;
 				} 
 
 				e.target.innerHTML = flagIcon;
 				e.target.dataset.flagged = true;
 				e.target.firstChild.style.pointerEvents = "none";
+				bombsInput.value = parseInt(bombsInput.value) - 1;
 			};	
 			
 			let startButtonClickHandler = e => {
+ 				bombsInput.disabled = true;
 				let height = parseInt(heightInput.value);
 				let width = parseInt(widthInput.value);
-				let mines = parseInt(minesInput.value);
-				initializeNewGame(height,width,mines);
+				let bombs = parseInt(bombsInput.value);
+				initializeNewGame(height,width,bombs);
 			};
 			
 			function load(e){
