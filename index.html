@@ -33,16 +33,28 @@
 						</g>
 						</svg>`;			
 						
-			let showAll = () => {
-				
+			let showAll = async () => {
+				return new Promise((resolve)=>{
+						for(index = 0;index<gameArea.children.length;index++){
+							let field = gameArea.children[index];
+							let bombs = parseInt(field.dataset.surroundedBy);			
+							field.style.backgroundColor = "#FFF";				
+							field.dataset.shown = "true";
+							field.innerHTML = field.dataset.hasBomb == "true" ? bombIcon 
+							: bombs > 0 ? `<center style="${ bombs == 1 ? "color:#00F" : bombs == 2 ? "color:#080" : bombs == 3 ? "color:#F00" : bombs == 4 ? "color:#008" : bombs == 5 ? "color:#800" : bombs == 6 ? "color:#088" : bombs == 7 ? "color:#000" : bombs == 8 ? "color:#888" : "color:#FFF"};"><b>${field.dataset.surroundedBy}</b><center>`:"";
+						}
+						resolve();
+					}
+				);				
 			}
 
 			let finishGame = async () => {
 				alert("bom!");
+				await showAll();
 				bombsInput.disabled = false; 
 			};
 			
-			let initializeNewGame = (height,width,bombs) => {
+			let createField = (height,width) => {
 				gameArea.innerHTML = "";
 				gameArea.style.width = `${width*22}px`;
 		
@@ -61,8 +73,11 @@
 						div.dataset.surroundedBy = 0;
 						gameArea.appendChild(div);
 					}				
-				}
-				
+				}			
+			};
+			
+			
+			let locateTheBombs = (height,width,bombs) =>{
 				while(bombs > 0){ 
 					let index = Math.floor(Math.random() * (height * width));
 					let currentField = gameArea.children[index];
@@ -93,7 +108,12 @@
 						}
 					} 
 					bombs--;
-				}
+				}			
+			};
+			
+			let initializeNewGame = (height,width,bombs) => {
+				createField(height,width);
+				locateTheBombs(height,width,bombs);
 			}
 			
 			let showFieldContent = index => {
