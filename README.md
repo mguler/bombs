@@ -1,3 +1,3 @@
 # bombs
 
-a javascript/html clone of classic minesweeper game
+an html/javascript clone of classic minesweeper game
